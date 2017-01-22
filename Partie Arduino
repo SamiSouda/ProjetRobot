@@ -1,1 +1,193 @@
+/*
+ * Code qui transcrit la chaîne de caractères recus de la RaspberryPi par le biais du port série en une suite d'actions.
+ * Actions:
+ * avancer = les deux moteurs tournent à la même vitese dans le même sens vers l'avant
+ * reculer = les deux moteurs tournent dans le même sens à la même vitesse vers l'arrière
+ * stop = les deux moteurs s'arrètent peu importe le sens
+ * tournerd = dépend du sens de marche des moteurs à ce moment: avant : Le moteur droit s'arrète (ou ralentit) et le gauche continue vers l'avant 
+ *                                                              arrière : Le moteur droit s'arrète (ou ralentit) et le gauche continue vers l'arrière 
+ * tournerg = dépend du sens de marche des moteurs à ce moment: avant : Le moteur gauche s'arrète (ou ralentit) et le droit continue vers l'avant 
+ *                                                              arrière : Le moteur gauche s'arrète (ou ralentit) et le droit continue vers l'arrière
+ * Pour ce programme, g sera la variable de la vitesse du moteur gauche (si g est négative, le moteur tourne vers l'arrière). Pareil pour le droit avec la variable d.
+ */
 
+# include <Stepper.h>
+
+int moteur_g = 0; // Etat de base du moteur gauche, vitesse nulle (RPMS)
+int moteur_d = 0; // Etat de base du moteur droit, vitesse nulle (RPMS)
+
+const int NombrePas = ???; // Nombre de pas des steppers
+
+const int Pas_1g = ?; // Constantes de Broche gauche
+const int Pas_2g = ?; 
+const int Pas_3g = ?;
+const int Pas_4g = ?;
+
+const int Pas_1d = ?; // Constantes de Broche droite
+const int Pas_2d = ?; 
+const int Pas_3d = ?;
+const int Pas_4d= ?;
+
+Stepper stepper_g(NombrePas, Pas_1g, Pas_2g, Pas_3g, Pas_4g); // Creation de l'objet stepper pour controler le moteur gauche
+Stepper stepper_g(NombrePas, Pas_1d, Pas_2d, Pas_3d, Pas_4d); // Creation de l'objet stepper pour controler le moteur droit
+
+void setup() {
+  Serial.begin(9600);
+
+  pinMode(Pas_1g, OUTPUT); // Broches gauches en sortie
+  pinMode(Pas_2g, OUTPUT);
+  pinMode(Pas_3g, OUTPUT);
+  pinMode(Pas_4g, OUTPUT);
+  
+  pinMode(Pas_1d, OUTPUT); // Broches droites en sortie
+  pinMode(Pas_2d, OUTPUT);
+  pinMode(Pas_3d, OUTPUT);
+  pinMode(Pas_4d, OUTPUT);
+
+  stepper_g.setSpeed(moteur_g); // Definis la vitesse initiale du stepper_g comme etant moteur_g
+  stepper_d.setSpeed(moteur_d); // Definis la vitesse initiale du stepper_d comme etant moteur_d
+  /*
+   * c'est pas sa vitesse directe, il faudra d'abord modifier les valeur des vitesses moteur_g et moteur_d 
+   * et par la suite appeler la fonction stepper_X.step(steps), qui fera le nombre de steps demandes a la vitesse prealablement modifiee
+   * Pour une rotation inversee, il faudra mettre des steps negatives dans stepper_X.steps()
+   */
+
+}
+
+void loop() {
+  
+  while(Serial.available()){ 
+    char action = Serial.read(); // Enregistre l'action ecrite dans le port serie dans une variable de type char appelee action
+    switch(action){ // Debut du switch des actions
+      case(avancer) : // Premier cas, avancer
+        // Debute toujours par une micro pause pour l'arret complet des moteurs pour pas les endomager
+        int moteur_g = 0; // Vitesse du moteur gauche fixee a 0 RPMS
+        int moteur_d = 0; // Pareil avec le droit
+        int steps = 1; // Nombre de pas a effectuer pour l'arret
+        stepper_g.step(steps); // Fait avancer de 1 pas le robot a 0 RMPS
+        stepper_d.step(steps);
+        delay(10); // Attend 10 ms pour arret complet
+
+        Serial.println(action); // Ecrit l'action qu'il effectue
+        while(Serial.available()<= 0){ // Attend qu'une nouvelle commande soit entree dans le port serie
+          delay(1);
+        }
+        int vitesse = Serial.read(); // Enregistre la valeur dans une variable appelee vitesse
+        Serial.println(vitesse); // Ecrit la vitesse a laquelle il va aller
+        
+        while(Serial.available()<= 0){ // Attend une seconde commande
+          delay(1);
+        }
+        int steps = Serial.read(); // Enregistre cette commande dans la variable steps
+        Serial.println(steps); // Ecrit le nombre de pas qu'il va effectuer
+        
+        int moteur_g = vitesse; // Initialise sa vitesse a la valeur enregistree dans la variable vitesse
+        int moteur_d = vitesse;
+        int steps = steps;
+        stepper_g.step(steps); // Fait avancer le moteur gauche a la vitesse moteur_g sur le nombre de steps demande
+        stepper_d.step(steps);
+        break; // Fin du case
+        
+      case(reculer) :
+      
+        int moteur_g = 0;
+        int moteur_d = 0;
+        int steps = 1;
+        stepper_g.step(steps);
+        stepper_d.step(steps);
+        delay(10);
+
+        Serial.println(action);
+        while(Serial.available()<= 0){
+          delay(1);
+        }
+        int vitesse = Serial.read();
+        Serial.println(vitesse);
+        
+        while(Serial.available()<= 0){
+          delay(1);
+        }
+        int steps = Serial.read();
+        Serial.println(steps);
+        
+        int moteur_g = vitesse;
+        int moteur_d = vitesse;
+        int steps = - int steps;
+        stepper_g.step(steps);
+        stepper_d.step(steps);
+        break;
+        
+      case(pause) :
+        Serial.println(action)
+          while(Serial.available()<= 0){
+           int moteur_g = 0;
+           int moteur_d = 0;
+           int steps = 1;
+           stepper_g.step(steps);
+           stepper_d.step(steps);
+           delay(10);
+        
+      case(tourner_d):
+      
+        int moteur_g = 0;
+        int moteur_d = 0;
+        int steps = 1;
+        stepper_g.step(steps);
+        stepper_d.step(steps);
+        delay(10);
+
+        Serial.println(action);
+        while(Serial.available()<= 0){
+          delay(1);
+        }
+        int vitesse = Serial.read();
+        Serial.println(vitesse);
+        
+        while(Serial.available()<= 0){
+          delay(1);
+        }
+        int steps = Serial.read();
+        Serial.println(steps);
+        
+        int moteur_g = vitesse;
+        int moteur_d = 0;
+        int steps = steps;
+        stepper_g.step(steps);
+        break;
+
+        
+      case(tourner_g) :
+      
+        int moteur_g = 0;
+        int moteur_d = 0;
+        int steps = 1;
+        stepper_g.step(steps);
+        stepper_d.step(steps);
+        delay(10);
+
+        Serial.println(action);
+        while(Serial.available()<= 0){
+          delay(1);
+        }
+        int vitesse = Serial.read();
+        Serial.println(vitesse);
+        
+        while(Serial.available()<= 0){
+          delay(1);
+        }
+        int steps = Serial.read();
+        Serial.println(steps);
+        
+        int moteur_g = 0;
+        int moteur_d = vitesse;
+        int steps = steps;
+        stepper_d.step(steps);
+        break;
+
+      default :
+        Serial.println('Error');
+        break;   
+    }
+    delay(10); //Pause de fin de case
+  }
+}
